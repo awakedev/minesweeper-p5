@@ -1,5 +1,6 @@
-function Mine (){
-    
+function Cell (){
+    this.bee = true;
+    this.revealed = true;
 }
 
 function setup() {
