@@ -1,3 +1,10 @@
+var mineSound = new Audio();
+var bgMusic = new Audio();
+
+
+mineSound.src = "/sounds/mine.wav";
+bgMusic.src = "/sounds/bg.mp3";
+
 function make2DArray(cols, rows) {
     var arr = new Array(cols);
     for (var i = 0; i < arr.length; i++) {
@@ -6,28 +13,88 @@ function make2DArray(cols, rows) {
     return arr;
 }
 
-
-
 var grid;
+var cols;
+var rows;
 var w = 20;
 
-var rows = 20;
+var totalBees = 30;
 
-var cols = 20;
+
 
 function setup() {
-    createCanvas(201, 201);
+
+    createCanvas(401, 401);
     cols = floor(width / w);
     rows = floor(height / w);
     grid = make2DArray(cols, rows);
     for (var i = 0; i < cols; i++) {
         for (var j = 0; j < rows; j++) {
-            grid[i][j] = new Cell(i * w, j * w, w);
+            grid[i][j] = new Cell(i, j, w);
+        }
+    }
+
+
+    // Pick totalBees spots
+    var options = [];
+    for (var i = 0; i < cols; i++) {
+        for (var j = 0; j < rows; j++) {
+            options.push([i, j]);
+        }
+    }
+
+
+    for (var n = 0; n < totalBees; n++) {
+        var index = floor(random(options.length));
+        var choice = options[index];
+        var i = choice[0];
+        var j = choice[1];
+        // Deletes that spot so it's no longer an option
+        options.splice(index, 1);
+        grid[i][j].bee = true;
+    }
+
+
+    for (var i = 0; i < cols; i++) {
+        for (var j = 0; j < rows; j++) {
+            grid[i][j].countBees();
         }
     }
 
 }
 
+function gameOver() {
+    for (var i = 0; i < cols; i++) {
+        for (var j = 0; j < rows; j++) {
+            grid[i][j].revealed = true;
+        }
+    }
+}
+
+function playMusic() {
+    
+        bgMusic.loop = true;
+        bgMusic.play(); 
+       
+}
+
+function mousePressed() {
+    for (var i = 0; i < cols; i++) {
+        for (var j = 0; j < rows; j++) {
+            if (grid[i][j].contains(mouseX, mouseY)) {
+                grid[i][j].reveal();
+
+                if (grid[i][j].bee) {
+                    gameOver();
+                    bgMusic.pause();
+                    mineSound.play();
+
+                }
+
+            }
+        }
+    }
+}
 
 function draw() {
     background(255);
@@ -36,5 +103,6 @@ function draw() {
             grid[i][j].show();
         }
     }
-
 }
+
+playMusic();
